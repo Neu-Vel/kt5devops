@@ -6,7 +6,7 @@ export const authRouter = Router()
 
 /**
  * @openapi
- * /auth/register:
+ * /user/register:
  *  post:
  *      summary: Регистрация пользователя
  *      tags:
@@ -15,7 +15,7 @@ export const authRouter = Router()
  *            required: true
  *            content:
  *              application/json:
- *                  scheme:
+ *                  schema:
  *                      type: object
  *                      required:
  *                          - username
@@ -27,15 +27,42 @@ export const authRouter = Router()
  *                          password:
  *                              type: string
  *                              example: 123456
- *      responces:
+ *      responses:
  *          200:
- *              description: Пользователь создан
+ *              description: Пользователь успешно создан
  */
 authRouter.post(
     "/register",
     (req, res) => handler(res, register(req.body.username, req.body.password))
 )
 
+/**
+ * @openapi
+ * /user/login:
+ *  post:
+ *      summary: Авторизация пользователя
+ *      tags:
+ *          - Auth
+ *      requestBody:
+ *            required: true
+ *            content:
+ *              application/json:
+ *                  schema:
+ *                      type: object
+ *                      required:
+ *                          - username
+ *                          - password
+ *                      properties:
+ *                          username:
+ *                              type: string
+ *                              example: user12345
+ *                          password:
+ *                              type: string
+ *                              example: 123456
+ *      responses:
+ *          200:
+ *              description: Успешная авторизация (возвращает токен)
+ */
 authRouter.post(
     "/login",
     (req, res) => handler(res, login(req.body.username, req.body.password))

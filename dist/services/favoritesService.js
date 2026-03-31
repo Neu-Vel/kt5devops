@@ -33,15 +33,30 @@ var __importStar = (this && this.__importStar) || (function () {
     };
 })();
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.searchProducts = exports.getById = exports.getAll = void 0;
+exports.getFavorites = exports.removeFromFavorites = exports.addToFavorites = void 0;
 const TE = __importStar(require("fp-ts/TaskEither"));
-const O = __importStar(require("fp-ts/Option"));
 const db_1 = require("../infrastructure/db");
-const function_1 = require("fp-ts/lib/function");
-const getAll = () => TE.right(db_1.db.products);
-exports.getAll = getAll;
-const getById = (id) => (0, function_1.pipe)(db_1.db.products.find(p => p.id === id), O.fromNullable, TE.fromOption(() => "Product not found"));
-exports.getById = getById;
-const searchProducts = (query = "") => TE.right(db_1.db.products.filter(product => product.title.toLowerCase().includes(query.toLowerCase()) ||
-    product.category.toLowerCase().includes(query.toLowerCase())));
-exports.searchProducts = searchProducts;
+const addToFavorites = (userId, productId) => {
+    const index = db_1.db.favorites.findIndex(item => item.userId === userId);
+    if (index !== -1) {
+        const fav = db_1.db.favorites[index];
+        if (!fav.productIds.includes(productId)) {
+            fav.productIds.push(productId);
+        }
+    }
+    else {
+        db_1.db.favorites.push({ userId, productIds: [productId] });
+    }
+    return TE.right({ success: true, message: "товар добавлен в избранное" });
+};
+exports.addToFavorites = addToFavorites;
+const removeFromFavorites = (userId, productId) => {
+    const index = db_1.db.favorites.findIndex(item => item.userId === userId);
+    if (index !== -1) {
+        db_1.db.favorites[index].productIds = db_1.db.favorites[index].productIds.filter(id => id !== productId);
+    }
+    return TE.right({ success: true, message: "товар удалён из избранного" });
+};
+exports.removeFromFavorites = removeFromFavorites;
+const getFavorites = (userId) => TE.right(db_1.db.favorites.filter(fav => fav.userId === userId));
+exports.getFavorites = getFavorites;
